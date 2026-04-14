@@ -151,13 +151,12 @@ app.put('/profesores/:id', (req, res) => {
     }
 
     if (
-        (req.body.id !== undefined && typeof req.body.id !== "number") ||
-        (req.body.numeroEmpleado !== undefined && typeof req.body.numeroEmpleado !== "string") ||
-        (req.body.nombres !== undefined && typeof req.body.nombres !== "string") ||
-        (req.body.apellidos !== undefined && typeof req.body.apellidos !== "string") ||
-        (req.body.horasClase !== undefined && typeof req.body.horasClase !== "number")
+        (req.body.horasClase !== undefined && isNaN(req.body.horasClase)) ||
+        (req.body.nombres !== undefined && req.body.nombres === "") ||
+        (req.body.apellidos !== undefined && req.body.apellidos === "") ||
+        (req.body.numeroEmpleado !== undefined && req.body.numeroEmpleado === "")
     ) {
-        return res.status(400).json({ error: "Tipos inválidos" });
+        return res.status(400).json({ error: "Campos inválidos" });
     }
 
     Object.assign(profesor, req.body);
