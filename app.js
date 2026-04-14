@@ -1,92 +1,221 @@
 const express = require('express');
 const app = express();
-
+ 
 app.use(express.json());
-
-
+ 
 let alumnos = [];
 let profesores = [];
-
-// alumnos
-
+ 
+/* =========================
+   ALUMNOS
+========================= */
+ 
+// GET todos
 app.get('/alumnos', (req, res) => {
-    res.status(200).json(alumnos);
+    return res.status(200).json(alumnos);
 });
-
+ 
+// GET por id
 app.get('/alumnos/:id', (req, res) => {
-    const alumno = alumnos.find(a => a.id == req.params.id);
-    if (!alumno) return res.status(404).json({error: "No encontrado"});
-    res.json(alumno);
+    const alumno = alumnos.find(a => a.id === Number(req.params.id));
+ 
+    if (!alumno) {
+        return res.status(404).json({ error: "No encontrado" });
+    }
+ 
+    return res.status(200).json(alumno);
 });
-
+ 
+// POST
 app.post('/alumnos', (req, res) => {
-    const {id, nombres, apellidos, matricula, promedio} = req.body;
-
-    if (!id || !nombres || !apellidos || !matricula || !promedio) {
-        return res.status(400).json({error: "Campos incompletos"});
+    const { id, nombres, apellidos, matricula, promedio } = req.body;
+ 
+    if (id === undefined || !nombres || !apellidos || !matricula || promedio === undefined) {
+        return res.status(400).json({ error: "Campos incompletos" });
     }
-
+ 
+    if (
+        typeof id !== "number" ||
+        typeof nombres !== "string" ||
+        typeof apellidos !== "string" ||
+        typeof matricula !== "string" ||
+        typeof promedio !== "number"
+    ) {
+        return res.status(400).json({ error: "Tipos inválidos" });
+    }
+ 
+    const existe = alumnos.find(a => a.id === id);
+    if (existe) {
+        return res.status(400).json({ error: "ID ya existe" });
+    }
+ 
     alumnos.push(req.body);
-    res.status(201).json(req.body);
+ 
+    return res.status(201).json(req.body);
 });
-
-
+ 
+// PUT
 app.put('/alumnos/:id', (req, res) => {
-    let alumno = alumnos.find(a => a.id == req.params.id);
-    if (!alumno) return res.status(404).json({error: "No encontrado"});
-
-    Object.assign(alumno, req.body);
-    res.json(alumno);
-});
-
-
-app.delete('/alumnos/:id', (req, res) => {
-    alumnos = alumnos.filter(a => a.id != req.params.id);
-    res.json({mensaje: "Eliminado"});
-});
-
-//profesores
-app.get('/profesores', (req, res) => {
-    res.status(200).json(profesores);
-});
-
-
-app.get('/profesores/:id', (req, res) => {
-    const profesor = profesores.find(p => p.id == req.params.id);
-    if (!profesor) return res.status(404).json({error: "No encontrado"});
-    res.json(profesor);
-});
-
-
-app.post('/profesores', (req, res) => {
-    const {id, numeroEmpleado, nombres, apellidos, horasClase} = req.body;
-
-    if (!id || !numeroEmpleado || !nombres || !apellidos || !horasClase) {
-        return res.status(400).json({error: "Campos incompletos"});
+    const alumno = alumnos.find(a => a.id === Number(req.params.id));
+ 
+    if (!alumno) {
+        return res.status(404).json({ error: "No encontrado" });
     }
-
+ 
+    const { nombres, apellidos, matricula, promedio } = req.body;
+ 
+    if (
+        (nombres !== undefined && nombres === "") ||
+        (apellidos !== undefined && apellidos === "") ||
+        (matricula !== undefined && matricula === "") ||
+        (promedio !== undefined && typeof promedio !== "number")
+    ) {
+        return res.status(400).json({ error: "Campos inválidos" });
+    }
+ 
+    Object.assign(alumno, req.body);
+ 
+    return res.status(200).json(alumno);
+});
+ 
+// DELETE
+app.delete('/alumnos/:id', (req, res) => {
+    const index = alumnos.findIndex(a => a.id === Number(req.params.id));
+ 
+    if (index === -1) {
+        return res.status(404).json({ error: "No encontrado" });
+    }
+ 
+    alumnos.splice(index, 1);
+ 
+    return res.status(200).json({ mensaje: "Eliminado" });
+});
+ 
+/* =========================
+   PROFESORES
+========================= */
+ 
+// GET todos
+app.get('/profesores', (req, res) => {
+    return res.status(200).json(profesores);
+});
+ 
+// GET por id
+app.get('/profesores/:id', (req, res) => {
+    const profesor = profesores.find(p => p.id === Number(req.params.id));
+ 
+    if (!profesor) {
+        return res.status(404).json({ error: "No encontrado" });
+    }
+ 
+    return res.status(200).json(profesor);
+});
+ 
+// POST
+app.post('/profesores', (req, res) => {
+    const { id, numeroEmpleado, nombres, apellidos, horasClase } = req.body;
+ 
+    if (id === undefined || !numeroEmpleado || !nombres || !apellidos || horasClase === undefined) {
+        return res.status(400).json({ error: "Campos incompletos" });
+    }
+ 
+    if (
+        typeof id !== "number" ||
+        typeof numeroEmpleado !== "string" ||
+        typeof nombres !== "string" ||
+        typeof apellidos !== "string" ||
+        typeof horasClase !== "number"
+    ) {
+        return res.status(400).json({ error: "Tipos inválidos" });
+    }
+ 
+    const existe = profesores.find(p => p.id === id);
+    if (existe) {
+        return res.status(400).json({ error: "ID ya existe" });
+    }
+ 
     profesores.push(req.body);
-    res.status(201).json(req.body);
+ 
+    return res.status(201).json(req.body);
 });
-
-
+ 
+// PUT
 app.put('/profesores/:id', (req, res) => {
-    let profesor = profesores.find(p => p.id == req.params.id);
-    if (!profesor) return res.status(404).json({error: "No encontrado"});
-
+    const profesor = profesores.find(p => p.id === Number(req.params.id));
+ 
+    if (!profesor) {
+        return res.status(404).json({ error: "No encontrado" });
+    }
+ 
+    const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
+ 
+    if (
+        (numeroEmpleado !== undefined && numeroEmpleado === "") ||
+        (nombres !== undefined && nombres === "") ||
+        (apellidos !== undefined && apellidos === "") ||
+        (horasClase !== undefined && typeof horasClase !== "number")
+    ) {
+        return res.status(400).json({ error: "Campos inválidos" });
+    }
+ 
     Object.assign(profesor, req.body);
-    res.json(profesor);
+ 
+    return res.status(200).json(profesor);
 });
-
-
+ 
+// DELETE
 app.delete('/profesores/:id', (req, res) => {
-    const existe = profesores.find(p => p.id == req.params.id);
-    if (!existe) return res.status(404).json({error: "No encontrado"});
-
-    profesores = profesores.filter(p => p.id != req.params.id);
-    res.json({mensaje: "Eliminado"});
+    const index = profesores.findIndex(p => p.id === Number(req.params.id));
+ 
+    if (index === -1) {
+        return res.status(404).json({ error: "No encontrado" });
+    }
+ 
+    profesores.splice(index, 1);
+ 
+    return res.status(200).json({ mensaje: "Eliminado" });
 });
-
-app.listen(3000, () => {
-    console.log("Servidor corriendo en puerto 3000");
+ 
+/* =========================
+   MÉTODOS NO PERMITIDOS (405)
+========================= */
+ 
+// sin ID
+app.all('/alumnos', (req, res) => {
+    if (!['GET', 'POST'].includes(req.method)) {
+        return res.status(405).json({ error: "Método no permitido" });
+    }
 });
+ 
+app.all('/profesores', (req, res) => {
+    if (!['GET', 'POST'].includes(req.method)) {
+        return res.status(405).json({ error: "Método no permitido" });
+    }
+});
+ 
+// con ID
+app.all('/alumnos/:id', (req, res) => {
+    if (!['GET', 'PUT', 'DELETE'].includes(req.method)) {
+        return res.status(405).json({ error: "Método no permitido" });
+    }
+});
+ 
+app.all('/profesores/:id', (req, res) => {
+    if (!['GET', 'PUT', 'DELETE'].includes(req.method)) {
+        return res.status(405).json({ error: "Método no permitido" });
+    }
+});
+ 
+/* =========================
+   EXPORT
+========================= */
+module.exports = app;
+ 
+/* =========================
+   SERVER
+========================= */
+if (require.main === module) {
+    app.listen(3000, '0.0.0.0', () => {
+        console.log("Servidor corriendo en puerto 3000");
+    });
+}
