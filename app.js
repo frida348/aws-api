@@ -137,15 +137,19 @@ app.put('/profesores/:id', (req, res) => {
         return res.status(404).json({ error: "No encontrado" });
     }
  
+    // ❌ NO permitir cambiar el ID
+    if (req.body.id !== undefined) {
+        return res.status(400).json({ error: "Campos inválidos" });
+    }
+ 
     const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
  
-    // ✅ VALIDACIÓN CORRECTA (más estricta)
+    // ✅ Validaciones completas
     if (
         (numeroEmpleado !== undefined && numeroEmpleado === "") ||
         (nombres !== undefined && nombres === "") ||
         (apellidos !== undefined && apellidos === "") ||
-        (horasClase !== undefined && typeof horasClase !== "number") ||
-        (numeroEmpleado !== undefined && typeof numeroEmpleado !== "string" && typeof numeroEmpleado !== "number")
+        (horasClase !== undefined && typeof horasClase !== "number")
     ) {
         return res.status(400).json({ error: "Campos inválidos" });
     }
