@@ -137,14 +137,29 @@ app.put('/profesores/:id', (req, res) => {
         return res.status(404).json({ error: "No encontrado" });
     }
  
-    // ✅ Permitir id pero NO cambiarlo
+    const camposValidos = ['id', 'numeroEmpleado', 'nombres', 'apellidos', 'horasClase'];
+    const keys = Object.keys(req.body);
+ 
+    // ❌ Body vacío
+    if (keys.length === 0) {
+        return res.status(400).json({ error: "Body vacío" });
+    }
+ 
+    // ❌ Campos no permitidos
+    for (let key of keys) {
+        if (!camposValidos.includes(key)) {
+            return res.status(400).json({ error: "Campo inválido" });
+        }
+    }
+ 
+    // ❌ No cambiar ID
     if (req.body.id !== undefined && req.body.id !== Number(req.params.id)) {
         return res.status(400).json({ error: "Campos inválidos" });
     }
  
     const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
  
-    // ✅ Validaciones
+    // ❌ Validaciones de contenido
     if (
         (numeroEmpleado !== undefined && numeroEmpleado === "") ||
         (nombres !== undefined && nombres === "") ||
@@ -158,7 +173,6 @@ app.put('/profesores/:id', (req, res) => {
  
     return res.status(200).json(profesor);
 });
-
 // DELETE
 app.delete('/profesores/:id', (req, res) => {
     const index = profesores.findIndex(p => p.id === Number(req.params.id));
