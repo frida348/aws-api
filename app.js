@@ -137,14 +137,14 @@ app.put('/profesores/:id', (req, res) => {
         return res.status(404).json({ error: "No encontrado" });
     }
  
-    // ❌ NO permitir cambiar el ID
-    if (req.body.id !== undefined) {
+    // ✅ Permitir id pero NO cambiarlo
+    if (req.body.id !== undefined && req.body.id !== Number(req.params.id)) {
         return res.status(400).json({ error: "Campos inválidos" });
     }
  
     const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
  
-    // ✅ Validaciones completas
+    // ✅ Validaciones
     if (
         (numeroEmpleado !== undefined && numeroEmpleado === "") ||
         (nombres !== undefined && nombres === "") ||
