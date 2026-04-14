@@ -131,39 +131,30 @@ app.post('/profesores', (req, res) => {
  
 // PUT
 app.put('/profesores/:id', (req, res) => {
-    const profesor = profesores.find(p => p.id == req.params.id);
-
+    const profesor = profesores.find(p => p.id === Number(req.params.id));
+ 
     if (!profesor) {
         return res.status(404).json({ error: "No encontrado" });
     }
-
-    const camposValidos = ['id', 'numeroEmpleado', 'nombres', 'apellidos', 'horasClase'];
-    const keys = Object.keys(req.body);
-
-    if (keys.length === 0) {
-        return res.status(400).json({ error: "Body vacío" });
-    }
-
-    for (let key of keys) {
-        if (!camposValidos.includes(key)) {
-            return res.status(400).json({ error: "Campo inválido" });
-        }
-    }
-
+ 
+    const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
+ 
+    // ✅ VALIDACIÓN CORRECTA (más estricta)
     if (
-        (req.body.horasClase !== undefined && isNaN(req.body.horasClase)) ||
-        (req.body.nombres !== undefined && req.body.nombres === "") ||
-        (req.body.apellidos !== undefined && req.body.apellidos === "") ||
-        (req.body.numeroEmpleado !== undefined && req.body.numeroEmpleado === "")
+        (numeroEmpleado !== undefined && numeroEmpleado === "") ||
+        (nombres !== undefined && nombres === "") ||
+        (apellidos !== undefined && apellidos === "") ||
+        (horasClase !== undefined && typeof horasClase !== "number") ||
+        (numeroEmpleado !== undefined && typeof numeroEmpleado !== "string" && typeof numeroEmpleado !== "number")
     ) {
         return res.status(400).json({ error: "Campos inválidos" });
     }
-
-    Object.assign(profesor, req.body);
-
-    res.status(200).json(profesor);
-});
  
+    Object.assign(profesor, req.body);
+ 
+    return res.status(200).json(profesor);
+});
+
 // DELETE
 app.delete('/profesores/:id', (req, res) => {
     const index = profesores.findIndex(p => p.id === Number(req.params.id));
