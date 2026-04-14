@@ -160,14 +160,14 @@ app.put('/profesores/:id', (req, res) => {
     const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
  
     // ❌ Validaciones de contenido
-    if (
-        (numeroEmpleado !== undefined && numeroEmpleado === "") ||
-        (nombres !== undefined && nombres === "") ||
-        (apellidos !== undefined && apellidos === "") ||
-        (horasClase !== undefined && typeof horasClase !== "number")
-    ) {
-        return res.status(400).json({ error: "Campos inválidos" });
-    }
+   if (
+    (numeroEmpleado !== undefined && (numeroEmpleado === "" || numeroEmpleado === null || numeroEmpleado < 0)) ||
+    (nombres !== undefined && (nombres === "" || nombres === null)) ||
+    (apellidos !== undefined && (apellidos === "" || apellidos === null)) ||
+    (horasClase !== undefined && (typeof horasClase !== "number" || horasClase < 0))
+) {
+    return res.status(400).json({ error: "Campos inválidos" });
+}
  
     Object.assign(profesor, req.body);
  
