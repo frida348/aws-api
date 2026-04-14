@@ -45,28 +45,39 @@ app.post('/alumnos', (req, res) => {
  
 // PUT
 app.put('/alumnos/:id', (req, res) => {
-    const alumno = alumnos.find(a => a.id === Number(req.params.id));
- 
+    const alumno = alumnos.find(a => a.id == req.params.id);
+
     if (!alumno) {
         return res.status(404).json({ error: "No encontrado" });
     }
- 
-    const { nombres, apellidos, matricula, promedio } = req.body;
- 
-    if (
-        (nombres !== undefined && nombres === "") ||
-        (apellidos !== undefined && apellidos === "") ||
-        (matricula !== undefined && matricula === "") ||
-        (promedio !== undefined && typeof promedio !== "number")
-    ) {
-        return res.status(400).json({ error: "Campos inválidos" });
+
+    const camposValidos = ['id', 'nombres', 'apellidos', 'matricula', 'promedio'];
+    const keys = Object.keys(req.body);
+
+    if (keys.length === 0) {
+        return res.status(400).json({ error: "Body vacío" });
     }
- 
+
+    for (let key of keys) {
+        if (!camposValidos.includes(key)) {
+            return res.status(400).json({ error: "Campo inválido" });
+        }
+    }
+
+    if (
+        (req.body.id !== undefined && typeof req.body.id !== "number") ||
+        (req.body.nombres !== undefined && typeof req.body.nombres !== "string") ||
+        (req.body.apellidos !== undefined && typeof req.body.apellidos !== "string") ||
+        (req.body.matricula !== undefined && typeof req.body.matricula !== "string") ||
+        (req.body.promedio !== undefined && typeof req.body.promedio !== "number")
+    ) {
+        return res.status(400).json({ error: "Tipos inválidos" });
+    }
+
     Object.assign(alumno, req.body);
- 
-    return res.status(200).json(alumno);
+
+    res.status(200).json(alumno);
 });
- 
 // DELETE
 app.delete('/alumnos/:id', (req, res) => {
     const index = alumnos.findIndex(a => a.id === Number(req.params.id));
@@ -120,26 +131,38 @@ app.post('/profesores', (req, res) => {
  
 // PUT
 app.put('/profesores/:id', (req, res) => {
-    const profesor = profesores.find(p => p.id === Number(req.params.id));
- 
+    const profesor = profesores.find(p => p.id == req.params.id);
+
     if (!profesor) {
         return res.status(404).json({ error: "No encontrado" });
     }
- 
-    const { numeroEmpleado, nombres, apellidos, horasClase } = req.body;
- 
-    if (
-        (numeroEmpleado !== undefined && numeroEmpleado === "") ||
-        (nombres !== undefined && nombres === "") ||
-        (apellidos !== undefined && apellidos === "") ||
-        (horasClase !== undefined && typeof horasClase !== "number")
-    ) {
-        return res.status(400).json({ error: "Campos inválidos" });
+
+    const camposValidos = ['id', 'numeroEmpleado', 'nombres', 'apellidos', 'horasClase'];
+    const keys = Object.keys(req.body);
+
+    if (keys.length === 0) {
+        return res.status(400).json({ error: "Body vacío" });
     }
- 
+
+    for (let key of keys) {
+        if (!camposValidos.includes(key)) {
+            return res.status(400).json({ error: "Campo inválido" });
+        }
+    }
+
+    if (
+        (req.body.id !== undefined && typeof req.body.id !== "number") ||
+        (req.body.numeroEmpleado !== undefined && typeof req.body.numeroEmpleado !== "string") ||
+        (req.body.nombres !== undefined && typeof req.body.nombres !== "string") ||
+        (req.body.apellidos !== undefined && typeof req.body.apellidos !== "string") ||
+        (req.body.horasClase !== undefined && typeof req.body.horasClase !== "number")
+    ) {
+        return res.status(400).json({ error: "Tipos inválidos" });
+    }
+
     Object.assign(profesor, req.body);
- 
-    return res.status(200).json(profesor);
+
+    res.status(200).json(profesor);
 });
  
 // DELETE
