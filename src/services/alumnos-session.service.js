@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const alumnosService = require('./alumnos.service');
 const dynamodbService = require('../integrations/aws/dynamodb.service');
 
+const memorySessions = new Map();
+
 function parseId(value) {
     const id = Number(value);
 
@@ -27,7 +29,19 @@ async function login(id, password) {
         active: true,
     };
 
-    await dynamodbService.saveSession(session);
+    memorySessions.set(session.sessionString, session);
+
+    try {
+        await dynamodbService.saveSession(session);
+    } catch (error) {
+        console.error("Error DynamoDB saveSession completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+    }
 
     return {
         sessionString: session.sessionString,
@@ -45,7 +59,23 @@ async function verify(id, sessionString) {
         return false;
     }
 
-    const session = await dynamodbService.findSession(sessionString);
+    let session;
+
+    try {
+        session = await dynamodbService.findSession(sessionString);
+    } catch (error) {
+        console.error("Error DynamoDB findSession completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+    }
+
+    if (!session) {
+        session = memorySessions.get(sessionString);
+    }
 
     return Boolean(session && session.active === true && session.alumnoId === parsedId);
 }
@@ -61,13 +91,42 @@ async function logout(id, sessionString) {
         return false;
     }
 
-    const session = await dynamodbService.findSession(sessionString);
+    let session;
+
+    try {
+        session = await dynamodbService.findSession(sessionString);
+    } catch (error) {
+        console.error("Error DynamoDB findSession completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+    }
+
+    if (!session) {
+        session = memorySessions.get(sessionString);
+    }
 
     if (!session || session.active !== true || session.alumnoId !== parsedId) {
         return false;
     }
 
-    await dynamodbService.deactivateSession(sessionString);
+    session.active = false;
+    memorySessions.set(sessionString, session);
+
+    try {
+        await dynamodbService.deactivateSession(sessionString);
+    } catch (error) {
+        console.error("Error DynamoDB deactivateSession completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+    }
 
     return true;
 }

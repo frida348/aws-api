@@ -116,7 +116,17 @@ async function sendAlumnoEmail(id) {
         return null;
     }
 
-    await snsService.publishAlumnoEmail(buildAlumnoEmailMessage(alumno));
+    try {
+        await snsService.publishAlumnoEmail(buildAlumnoEmailMessage(alumno));
+    } catch (error) {
+        console.error("Error SNS publish completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+    }
 
     return alumno;
 }

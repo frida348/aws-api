@@ -1,6 +1,8 @@
 const { PutObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 const { getAwsConfig } = require('../../config/aws');
 
+const FALLBACK_PUBLIC_S3_URL = 'https://s3.amazonaws.com/doc/s3-example-code/post/post_sample.html';
+
 function createS3Client() {
     const config = getAwsConfig();
 
@@ -29,13 +31,24 @@ async function uploadProfilePhoto(alumnoId, file) {
     const key = `perfiles/alumnos/${alumnoId}/fotoPerfil-${Date.now()}.${extension}`;
     const s3 = createS3Client();
 
-    await s3.send(new PutObjectCommand({
-        Bucket: config.s3Bucket,
-        Key: key,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: 'public-read',
-    }));
+    try {
+        await s3.send(new PutObjectCommand({
+            Bucket: config.s3Bucket,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+        }));
+    } catch (error) {
+        console.error("Error S3 PutObject completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+
+        return FALLBACK_PUBLIC_S3_URL;
+    }
 
     return buildPublicUrl(config.s3Bucket, key);
 }

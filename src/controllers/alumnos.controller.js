@@ -106,6 +106,14 @@ async function loginSession(req, res) {
 
         return res.status(200).json(session);
     } catch (error) {
+        console.error("Error DynamoDB login completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+
         return res.status(400).json({ error: "Campos inv\u00e1lidos" });
     }
 }
@@ -120,6 +128,14 @@ async function verifySession(req, res) {
 
         return res.status(200).json({ active: true });
     } catch (error) {
+        console.error("Error DynamoDB verify completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+
         return res.status(400).json({ error: "Campos inv\u00e1lidos" });
     }
 }
@@ -134,6 +150,14 @@ async function logoutSession(req, res) {
 
         return res.status(200).json({ mensaje: "Sesion cerrada" });
     } catch (error) {
+        console.error("Error DynamoDB logout completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+
         return res.status(400).json({ error: "Campos inv\u00e1lidos" });
     }
 }
@@ -148,6 +172,14 @@ async function sendAlumnoEmail(req, res) {
 
         return res.status(200).json({ mensaje: "Mensaje enviado" });
     } catch (error) {
+        console.error("Error SNS completo:", {
+            name: error.name,
+            message: error.message,
+            code: error.code,
+            Code: error.Code,
+            stack: error.stack
+        });
+
         return res.status(400).json({ error: "Campos inv\u00e1lidos" });
     }
 }
