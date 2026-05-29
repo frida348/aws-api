@@ -69,12 +69,14 @@ async function deleteAlumno(req, res) {
 }
 
 async function uploadFotoPerfil(req, res) {
-    if (!req.file) {
+    const file = req.file || (req.files || []).find(item => item.fieldname === 'fotoPerfil' || item.fieldname === 'foto');
+
+    if (!file) {
         return res.status(400).json({ error: "Archivo requerido" });
     }
 
     try {
-        const alumno = await alumnosService.updateFotoPerfil(req.params.id, req.file);
+        const alumno = await alumnosService.updateFotoPerfil(req.params.id, file);
 
         if (!alumno) {
             return res.status(404).json({ error: "No encontrado" });

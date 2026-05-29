@@ -14,8 +14,8 @@ function createS3Client() {
     });
 }
 
-function buildPublicUrl(bucket, region, key) {
-    return `https://${bucket}.s3.${region}.amazonaws.com/${encodeURIComponent(key).replace(/%2F/g, '/')}`;
+function buildPublicUrl(bucket, key) {
+    return `https://s3.amazonaws.com/${bucket}/${encodeURIComponent(key).replace(/%2F/g, '/')}`;
 }
 
 async function uploadProfilePhoto(alumnoId, file) {
@@ -34,9 +34,10 @@ async function uploadProfilePhoto(alumnoId, file) {
         Key: key,
         Body: file.buffer,
         ContentType: file.mimetype,
+        ACL: 'public-read',
     }));
 
-    return buildPublicUrl(config.s3Bucket, config.region, key);
+    return buildPublicUrl(config.s3Bucket, key);
 }
 
 module.exports = {

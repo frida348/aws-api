@@ -10,7 +10,7 @@ router
     .post(alumnosController.createAlumno)
     .all(alumnosController.methodNotAllowedCollection);
 
-router.post('/:id/fotoPerfil', upload.single('fotoPerfil'), alumnosController.uploadFotoPerfil);
+router.post('/:id/fotoPerfil', upload.any(), alumnosController.uploadFotoPerfil);
 router.all('/:id/fotoPerfil', alumnosController.methodNotAllowedFotoPerfil);
 
 router.post('/:id/session/login', alumnosController.loginSession);

@@ -5,7 +5,10 @@ function validateCreateProfesor(body) {
         return { status: 400, body: { error: "Campos incompletos" } };
     }
 
-    if (typeof horasClase !== "number") {
+    if (
+        (typeof numeroEmpleado !== "number" && typeof numeroEmpleado !== "string") ||
+        typeof horasClase !== "number"
+    ) {
         return { status: 400, body: { error: "Campos inv\u00e1lidos" } };
     }
 
@@ -33,7 +36,12 @@ function validateUpdateProfesor(body, id) {
     const { numeroEmpleado, nombres, apellidos, horasClase } = body;
 
     if (
-        (numeroEmpleado !== undefined && (numeroEmpleado === "" || numeroEmpleado === null || numeroEmpleado < 0)) ||
+        (numeroEmpleado !== undefined && (
+            numeroEmpleado === "" ||
+            numeroEmpleado === null ||
+            (typeof numeroEmpleado !== "number" && typeof numeroEmpleado !== "string") ||
+            (typeof numeroEmpleado === "number" && numeroEmpleado < 0)
+        )) ||
         (nombres !== undefined && (nombres === "" || nombres === null)) ||
         (apellidos !== undefined && (apellidos === "" || apellidos === null)) ||
         (horasClase !== undefined && (typeof horasClase !== "number" || horasClase < 0))

@@ -8,6 +8,7 @@ const {
     DynamoDBDocumentClient,
     GetCommand,
     PutCommand,
+    ScanCommand,
     UpdateCommand,
 } = require('@aws-sdk/lib-dynamodb');
 const { getAwsConfig } = require('../../config/aws');
@@ -31,6 +32,13 @@ function getTableName() {
 
 function getDocumentClient() {
     return DynamoDBDocumentClient.from(createDynamoDbClient());
+}
+
+async function getPrimaryKeyName() {
+    const result = await describeSessionsTable();
+    const hashKey = result.Table.KeySchema.find(key => key.KeyType === 'HASH');
+
+    return hashKey.AttributeName;
 }
 
 async function createSessionsTable() {
@@ -87,6 +95,21 @@ async function saveSession(session) {
 
 async function findSession(sessionString) {
     const client = getDocumentClient();
+    const primaryKeyName = await getPrimaryKeyName();
+
+    if (primaryKeyName !== 'sessionString') {
+        const result = await client.send(new ScanCommand({
+            TableName: getTableName(),
+            FilterExpression: 'sessionString = :sessionString',
+            ExpressionAttributeValues: {
+                ':sessionString': sessionString,
+            },
+            Limit: 1,
+        }));
+
+        return (result.Items && result.Items[0]) || null;
+    }
+
     const result = await client.send(new GetCommand({
         TableName: getTableName(),
         Key: {
@@ -99,11 +122,18 @@ async function findSession(sessionString) {
 
 async function deactivateSession(sessionString) {
     const client = getDocumentClient();
+    const session = await findSession(sessionString);
+
+    if (!session) {
+        return null;
+    }
+
+    const primaryKeyName = await getPrimaryKeyName();
 
     const result = await client.send(new UpdateCommand({
         TableName: getTableName(),
         Key: {
-            sessionString,
+            [primaryKeyName]: session[primaryKeyName],
         },
         UpdateExpression: 'SET active = :active',
         ConditionExpression: 'attribute_exists(sessionString)',
